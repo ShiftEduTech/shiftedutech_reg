@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { User, Phone, Mail, GraduationCap, CheckCircle, X, Calendar } from 'lucide-react';
+import { User, Phone, GraduationCap, CheckCircle, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { DatePicker } from './ui/datepicker';
 
 interface FormData {
    firstName: string;
@@ -28,7 +29,7 @@ interface FormErrors {
 }
 
 export default function StudentRegistrationForm() {
-  const { toast } = useToast();
+  useToast();
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -85,7 +86,7 @@ export default function StudentRegistrationForm() {
 
     // Required field validation
        const requiredFields = [
-'firstName','lastName', 'fullName','fatherName', 'phone', 'email', 'state', 'pincode','fullAddress', 'collegeName', 'branch', 'studentId', 'yearOfPass','interestedCourse'
+'firstName','lastName', 'fatherName', 'phone', 'email', 'state', 'pincode','fullAddress', 'collegeName', 'branch', 'studentId', 'yearOfPass','interestedCourse'
     ];
 
     requiredFields.forEach(field => {
@@ -122,6 +123,11 @@ export default function StudentRegistrationForm() {
       newErrors.pincode = 'Please enter a valid 6-digit pincode';
     }
 
+    // Year of Pass validation (must be a 4-digit year between 2000 and 2099)
+    if (formData.yearOfPass && !/^(20\d{2})$/.test(formData.yearOfPass)) {
+      newErrors.yearOfPass = 'Please enter a valid year (e.g., 2024)';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -134,6 +140,8 @@ export default function StudentRegistrationForm() {
 
     const scriptUrl = 'https://script.google.com/macros/s/AKfycbzE7JEvQD6t4yrJbFKXqyCOrWrXx4S25ooSHglijcNelemiKV3T5aiOMl9sqXOxKC53/exec';
 
+    // Note: Using 'no-cors' mode means you cannot read the response or error from the server.
+    // This is a browser limitation when posting to Google Apps Script endpoints.
     // Reorder data to match Google Sheet columns:
     // Timestamp, First Name, Last Name, Full Name, Father's Name, Phone Number, Email Address, Landmark, State, Pincode, Full Address, College Name, Branch, Student ID, Year of Pass, Interested Course, Course Start Date, Course End Date
     const orderedData = {
@@ -156,7 +164,7 @@ export default function StudentRegistrationForm() {
       dateTo: formData.dateTo ? formData.dateTo.toISOString().split('T')[0] : ''
     };
     try {
-      const response = await fetch(scriptUrl, {
+      await fetch(scriptUrl, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 
@@ -228,7 +236,7 @@ export default function StudentRegistrationForm() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-4 sm:py-8 lg:py-12 px-3 sm:px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-4 sm:py-8 lg:py-12 px-3 sm:px-4 relative overflow-hidden overflow-x-hidden">
       {/* Enhanced Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/30 to-purple-600/30 rounded-full blur-3xl animate-pulse"></div>
@@ -242,7 +250,7 @@ export default function StudentRegistrationForm() {
         <div className="absolute bottom-20 right-32 w-5 h-5 bg-green-400/40 rounded-full animate-bounce delay-500"></div>
       </div>
 
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="max-w-6xl mx-auto relative z-10 px-2 sm:px-0">
         {/* Enhanced Header with Logo */}
         <div className="text-center mb-8 sm:mb-12 lg:mb-16">
           <div className="inline-flex items-center justify-center mb-6 sm:mb-8">
@@ -273,7 +281,7 @@ export default function StudentRegistrationForm() {
 
         <form onSubmit={handleSubmit} className="space-y-8 sm:space-y-10 lg:space-y-12">
           {/* Personal Information Section */}
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 sm:p-8 lg:p-12 shadow-2xl border border-white/50 hover:shadow-3xl transition-all duration-500 hover:bg-white/95">
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-4 sm:p-8 lg:p-12 shadow-2xl border border-white/50 hover:shadow-3xl transition-all duration-500 hover:bg-white/95">
             <div className="flex items-center gap-4 sm:gap-6 mb-8 sm:mb-10">
               <SectionIcon icon={User} gradient="from-blue-500 via-blue-600 to-blue-700" />
               <div>
@@ -282,7 +290,7 @@ export default function StudentRegistrationForm() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 min-w-0">
               <div className="space-y-3">
                 <label className="text-sm sm:text-base font-bold text-gray-800 flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -293,7 +301,7 @@ export default function StudentRegistrationForm() {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleInputChange}
-                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
+                  className="w-full max-w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
                   placeholder="Enter your first name"
                 />
                 {errors.firstName && <p className="text-red-500 text-sm font-medium flex items-center gap-2"><span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center"><span className="w-2 h-2 bg-red-500 rounded-full"></span></span>{errors.firstName}</p>}
@@ -309,7 +317,7 @@ export default function StudentRegistrationForm() {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleInputChange}
-                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
+                  className="w-full max-w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
                   placeholder="Enter your last name"
                 />
                 {errors.lastName && <p className="text-red-500 text-sm font-medium flex items-center gap-2"><span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center"><span className="w-2 h-2 bg-red-500 rounded-full"></span></span>{errors.lastName}</p>}
@@ -340,7 +348,7 @@ export default function StudentRegistrationForm() {
                   name="fatherName"
                   value={formData.fatherName}
                   onChange={handleInputChange}
-                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
+                  className="w-full max-w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
                   placeholder="Enter father's name"
                 />
                 {errors.fatherName && <p className="text-red-500 text-sm font-medium flex items-center gap-2"><span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center"><span className="w-2 h-2 bg-red-500 rounded-full"></span></span>{errors.fatherName}</p>}
@@ -349,7 +357,7 @@ export default function StudentRegistrationForm() {
           </div>
 
           {/* Contact Information Section */}
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 sm:p-8 lg:p-12 shadow-2xl border border-white/50 hover:shadow-3xl transition-all duration-500 hover:bg-white/95">
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-4 sm:p-8 lg:p-12 shadow-2xl border border-white/50 hover:shadow-3xl transition-all duration-500 hover:bg-white/95">
             <div className="flex items-center gap-4 sm:gap-6 mb-8 sm:mb-10">
               <SectionIcon icon={Phone} gradient="from-green-500 via-green-600 to-green-700" />
               <div>
@@ -358,7 +366,7 @@ export default function StudentRegistrationForm() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 min-w-0">
               <div className="space-y-3">
                 <label className="text-sm sm:text-base font-bold text-gray-800 flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -369,7 +377,7 @@ export default function StudentRegistrationForm() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
+                  className="w-full max-w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
                   placeholder="Enter 10-digit phone number"
                 />
                 {errors.phone && <p className="text-red-500 text-sm font-medium flex items-center gap-2"><span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center"><span className="w-2 h-2 bg-red-500 rounded-full"></span></span>{errors.phone}</p>}
@@ -385,7 +393,7 @@ export default function StudentRegistrationForm() {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
+                  className="w-full max-w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
                   placeholder="Enter your email address"
                 />
                 {errors.email && <p className="text-red-500 text-sm font-medium flex items-center gap-2"><span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center"><span className="w-2 h-2 bg-red-500 rounded-full"></span></span>{errors.email}</p>}
@@ -401,7 +409,7 @@ export default function StudentRegistrationForm() {
                   name="landmark"
                   value={formData.landmark}
                   onChange={handleInputChange}
-                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
+                  className="w-full max-w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
                   placeholder="Enter nearby landmark"
                 />
               </div>
@@ -416,7 +424,7 @@ export default function StudentRegistrationForm() {
                   name="state"
                   value={formData.state}
                   onChange={handleInputChange}
-                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
+                  className="w-full max-w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
                   placeholder="Enter your state"
                 />
                 {errors.state && <p className="text-red-500 text-sm font-medium flex items-center gap-2"><span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center"><span className="w-2 h-2 bg-red-500 rounded-full"></span></span>{errors.state}</p>}
@@ -432,7 +440,7 @@ export default function StudentRegistrationForm() {
                   name="pincode"
                   value={formData.pincode}
                   onChange={handleInputChange}
-                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
+                  className="w-full max-w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
                   placeholder="Enter 6-digit pincode"
                 />
                 {errors.pincode && <p className="text-red-500 text-sm font-medium flex items-center gap-2"><span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center"><span className="w-2 h-2 bg-red-500 rounded-full"></span></span>{errors.pincode}</p>}
@@ -448,7 +456,7 @@ export default function StudentRegistrationForm() {
                   value={formData.fullAddress}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-200 transition-all duration-300 bg-white/90 backdrop-blur-sm resize-none shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
+                  className="w-full max-w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-200 transition-all duration-300 bg-white/90 backdrop-blur-sm resize-none shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
                   placeholder="Enter your complete address with house number, street, area, city, like as Aadhaar Card..."
                 />
                 {errors.fullAddress && <p className="text-red-500 text-sm font-medium flex items-center gap-2"><span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center"><span className="w-2 h-2 bg-red-500 rounded-full"></span></span>{errors.fullAddress}</p>}
@@ -457,7 +465,7 @@ export default function StudentRegistrationForm() {
           </div>
 
           {/* Academic Information Section */}
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 sm:p-8 lg:p-12 shadow-2xl border border-white/50 hover:shadow-3xl transition-all duration-500 hover:bg-white/95">
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-4 sm:p-8 lg:p-12 shadow-2xl border border-white/50 hover:shadow-3xl transition-all duration-500 hover:bg-white/95">
             <div className="flex items-center gap-4 sm:gap-6 mb-8 sm:mb-10">
               <SectionIcon icon={GraduationCap} gradient="from-purple-500 via-purple-600 to-purple-700" />
               <div>
@@ -466,7 +474,7 @@ export default function StudentRegistrationForm() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 min-w-0">
               <div className="space-y-3">
                 <label className="text-sm sm:text-base font-bold text-gray-800 flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
@@ -477,7 +485,7 @@ export default function StudentRegistrationForm() {
                   name="collegeName"
                   value={formData.collegeName}
                   onChange={handleInputChange}
-                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
+                  className="w-full max-w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
                   placeholder="Enter your college name"
                 />
                 {errors.collegeName && <p className="text-red-500 text-sm font-medium flex items-center gap-2"><span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center"><span className="w-2 h-2 bg-red-500 rounded-full"></span></span>{errors.collegeName}</p>}
@@ -493,7 +501,7 @@ export default function StudentRegistrationForm() {
                   name="branch"
                   value={formData.branch}
                   onChange={handleInputChange}
-                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
+                  className="w-full max-w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
                   placeholder="Enter your branch/stream"
                 />
                 {errors.branch && <p className="text-red-500 text-sm font-medium flex items-center gap-2"><span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center"><span className="w-2 h-2 bg-red-500 rounded-full"></span></span>{errors.branch}</p>}
@@ -509,7 +517,7 @@ export default function StudentRegistrationForm() {
                   name="studentId"
                   value={formData.studentId}
                   onChange={handleInputChange}
-                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
+                  className="w-full max-w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
                   placeholder="Enter your student ID"
                 />
                 {errors.studentId && <p className="text-red-500 text-sm font-medium flex items-center gap-2"><span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center"><span className="w-2 h-2 bg-red-500 rounded-full"></span></span>{errors.studentId}</p>}
@@ -525,7 +533,7 @@ export default function StudentRegistrationForm() {
                   name="yearOfPass"
                   value={formData.yearOfPass}
                   onChange={handleInputChange}
-                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
+                  className="w-full max-w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base placeholder-gray-400"
                   placeholder="Enter year of passing (e.g., 2024)"
                 />
                 {errors.yearOfPass && <p className="text-red-500 text-sm font-medium flex items-center gap-2"><span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center"><span className="w-2 h-2 bg-red-500 rounded-full"></span></span>{errors.yearOfPass}</p>}
@@ -540,7 +548,7 @@ export default function StudentRegistrationForm() {
                   name="interestedCourse"
                   value={formData.interestedCourse}
                   onChange={handleInputChange}
-                  className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base text-gray-700"
+                  className="w-full max-w-full px-4 sm:px-5 py-3 sm:py-4 rounded-2xl border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base text-gray-700"
                 >
                   <option value="">Select a course</option>
                   <option value="C Language">C Language</option>
@@ -593,23 +601,12 @@ export default function StudentRegistrationForm() {
               </div>
 {/* Modern Sleek Date Inputs */}
 <div className="space-y-3">
-  <label className="text-sm sm:text-base font-bold text-gray-800 flex items-center gap-2">
-    <Calendar className="w-4 h-4 text-purple-600" />
-    Course Start Date *
-  </label>
-  <div className="relative">
-    <input
-      type="date"
-      name="dateFrom"
-      value={formData.dateFrom ? formData.dateFrom.toISOString().split('T')[0] : ''}
-      onChange={handleDateChange}
-      className="w-full px-4 sm:px-5 py-3 sm:py-4 pl-12 rounded-2xl border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base text-gray-700 hover:border-purple-300"
-      style={{
-        colorScheme: 'light',
-      }}
-    />
-  
-  </div>
+  <DatePicker
+    value={formData.dateFrom}
+    onChange={date => handleDateChange({ target: { name: 'dateFrom', value: date ? date.toISOString().split('T')[0] : '' } } as any)}
+    placeholder="Select start date"
+    label="Course Start Date *"
+  />
   {errors.dateFrom && (
     <p className="text-red-500 text-sm font-medium flex items-center gap-2">
       <span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center">
@@ -621,23 +618,12 @@ export default function StudentRegistrationForm() {
 </div>
 
 <div className="space-y-3 mt-6">
-  <label className="text-sm sm:text-base font-bold text-gray-800 flex items-center gap-2">
-    <Calendar className="w-4 h-4 text-purple-600" />
-    Course End Date *
-  </label>
-  <div className="relative">
-    <input
-      type="date"
-      name="dateTo"
-      value={formData.dateTo ? formData.dateTo.toISOString().split('T')[0] : ''}
-      onChange={handleDateChange}
-      className="w-full px-4 sm:px-5 py-3 sm:py-4 pl-12 rounded-2xl border-2 border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-medium text-sm sm:text-base text-gray-700 hover:border-purple-300"
-      style={{
-        colorScheme: 'light',
-      }}
-    />
-
-  </div>
+  <DatePicker
+    value={formData.dateTo}
+    onChange={date => handleDateChange({ target: { name: 'dateTo', value: date ? date.toISOString().split('T')[0] : '' } } as any)}
+    placeholder="Select end date"
+    label="Course End Date *"
+  />
   {errors.dateTo && (
     <p className="text-red-500 text-sm font-medium flex items-center gap-2">
       <span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center">
@@ -658,7 +644,7 @@ export default function StudentRegistrationForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="group relative px-8 sm:px-12 lg:px-16 py-4 sm:py-5 lg:py-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white text-lg sm:text-xl lg:text-2xl font-bold rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none min-w-[200px] sm:min-w-[280px]"
+              className="group relative w-full max-w-xs mx-auto px-8 sm:px-12 lg:px-16 py-4 sm:py-5 lg:py-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white text-lg sm:text-xl lg:text-2xl font-bold rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none min-w-0 min-w-[200px] sm:min-w-[280px]"
             >
               <span className="relative z-10 flex items-center justify-center gap-3">
                 {isSubmitting ? (
@@ -685,8 +671,8 @@ export default function StudentRegistrationForm() {
         
         {/* Enhanced Success Popup */}
         {showSuccessPopup && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-            <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full mx-4 overflow-hidden transform animate-in zoom-in-95 duration-500 border border-gray-100">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-2 sm:p-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full mx-2 sm:mx-4 overflow-hidden transform animate-in zoom-in-95 duration-500 border border-gray-100">
               {/* Animated Header */}
               <div className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-600 p-8 text-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-emerald-400/20 animate-pulse"></div>

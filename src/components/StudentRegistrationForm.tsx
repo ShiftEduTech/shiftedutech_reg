@@ -579,7 +579,7 @@ export default function StudentRegistrationForm() {
               </div>
             </div>
             {/* Date Pickers in their own row with margin below */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 mb-8 pb-32">
               <div>
                 <DatePicker
                   value={formData.dateFrom}

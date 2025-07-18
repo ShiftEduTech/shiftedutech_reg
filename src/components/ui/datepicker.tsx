@@ -13,6 +13,7 @@ interface DatePickerProps {
 export function DatePicker({ value, onChange, placeholder = 'Pick a date', label }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -30,6 +31,13 @@ export function DatePicker({ value, onChange, placeholder = 'Pick a date', label
     };
   }, [open]);
 
+  // Scroll the button into view when calendar opens (for mobile/small screens)
+  React.useEffect(() => {
+    if (open && buttonRef.current) {
+      buttonRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [open]);
+
   return (
     <div className="w-full relative" ref={ref}>
       {label && (
@@ -37,14 +45,15 @@ export function DatePicker({ value, onChange, placeholder = 'Pick a date', label
       )}
       <button
         type="button"
-        className={`w-full flex items-center px-4 py-3 rounded-2xl border-2 border-gray-200 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-normal text-left ${!value ? 'text-gray-400' : ''}`}
+        ref={buttonRef}
+        className={`w-full flex items-center px-4 py-3 rounded-2xl border-2 border-gray-200 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl font-normal text-left mb-6 ${!value ? 'text-gray-400' : ''}`}
         onClick={() => setOpen((prev) => !prev)}
       >
         <CalendarIcon className="mr-2 h-4 w-4 text-purple-600" />
         {value ? value.toLocaleDateString() : <span>{placeholder}</span>}
       </button>
       {open && (
-        <div className="absolute z-[9999] mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2">
+        <div className="absolute z-[9999] mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 left-0 w-full max-w-xs sm:max-w-sm md:max-w-md">
           <DayPicker
             mode="single"
             selected={value}

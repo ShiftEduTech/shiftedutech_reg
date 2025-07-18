@@ -31,7 +31,7 @@ export function DatePicker({ value, onChange, placeholder = 'Pick a date', label
   }, [open]);
 
   return (
-    <div className="w-full" ref={ref}>
+    <div className="w-full relative" ref={ref}>
       {label && (
         <label className="block text-sm font-bold text-gray-800 mb-2">{label}</label>
       )}
@@ -44,7 +44,7 @@ export function DatePicker({ value, onChange, placeholder = 'Pick a date', label
         {value ? value.toLocaleDateString() : <span>{placeholder}</span>}
       </button>
       {open && (
-        <div className="absolute z-50 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2">
+        <div className="absolute z-[9999] mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2">
           <DayPicker
             mode="single"
             selected={value}
